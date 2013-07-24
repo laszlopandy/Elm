@@ -10,7 +10,6 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 import Types.Substitutions (subst)
 import Types.Types
-import Data.Generics.Uniplate.Data
 
 builtins :: [(String,([X],Type))]
 builtins =
@@ -51,7 +50,7 @@ mistakes :: [Statement] -> [String]
 mistakes stmts = badKinds stmts ++ dups stmts ++ badOrder stmts
 
 badKinds :: [Statement] -> [String]
-badKinds stmts = [msg tname | t <- universeBi stmts, tname <- badT t]
+badKinds stmts = [msg tname | t <- getAllTypes stmts, tname <- badT t]
   where
     msg x = "Type Error: Type alias '" ++ x ++
             "' was given the wrong number of arguments."
@@ -61,6 +60,20 @@ badKinds stmts = [msg tname | t <- universeBi stmts, tname <- badT t]
       | Just (xs, _) <- Map.lookup name (get stmts),
         length xs /= length ts = [name]
     badT _ = []
+
+getAllTypes :: [Statement] -> [Type]
+getAllTypes [] = []
+getAllTypes (stmt:xs) = case stmt of
+      (Definition def) -> fromDef def ++ rest
+      (Datatype _ _ strTypeListList) -> (concatMap snd strTypeListList) ++ rest
+      (TypeAlias _ _ t) -> t : rest
+      (ImportEvent _ _ _ t) -> t : rest
+      (ExportEvent _ _ t) -> t : rest
+    where rest = getAllTypes xs
+          fromDef def = case def of
+              (FnDef _ _ _) -> []
+              (OpDef _ _ _ _) -> []
+              (TypeAnnotation _ t) -> [t]
 
 annotation :: Def -> Maybe String
 annotation s =
@@ -83,7 +96,44 @@ checkTopLevelAndLets stmts fcheck =
     topLevelDefs = mapMaybe maybeDef stmts
     maybeDef (Definition d) = Just d
     maybeDef _ = Nothing
-    allLetDefs = [defList | Let defList _ <- universeBi stmts]
+    allLetDefs = getAllLets stmts
+
+getAllLets :: [Statement] -> [[Def]]
+getAllLets [] = []
+getAllLets (stmt:xs) = case stmt of
+      (Definition def) -> (fromDef def) : rest
+      (Datatype _ _ _) -> rest
+      (TypeAlias _ _ _) -> rest
+      (ImportEvent _ expr _ _) -> (fromExpr expr) : rest
+      (ExportEvent _ _ _) -> rest
+    where rest = getAllLets xs
+          fromDef def = case def of
+              (FnDef _ _ expr) -> fromExpr expr
+              (OpDef _ _ _ expr) -> fromExpr expr
+              (TypeAnnotation _ _) -> []
+          fromExpr (L _ _ e) = case e of
+              (IntNum _) -> []
+              (FloatNum _) -> []
+              (Chr _) -> []
+              (Str _) -> []
+              (Boolean _) -> []
+              (Range expr1 expr2) -> fromExpr expr1 ++ fromExpr expr2
+              (Access expr _) -> fromExpr expr
+              (Remove expr _) -> fromExpr expr
+              (Insert expr1 _ expr2) -> fromExpr expr1 ++ fromExpr expr2
+              (Modify expr strExprList) -> fromExpr expr ++ (concatMap (fromExpr . snd) strExprList)
+              (Record strStrListExprList) -> concatMap (\(x,y,z) -> fromExpr z) strStrListExprList
+              (Binop _ expr1 expr2) -> fromExpr expr1 ++ fromExpr expr2
+              (Lambda _ expr) -> fromExpr expr
+              (App expr1 expr2) -> fromExpr expr1 ++ fromExpr expr2
+              (If expr1 expr2 expr3) ->  fromExpr expr1 ++ fromExpr expr2 ++ fromExpr expr3
+              (MultiIf exprExprList) -> concatMap (\(e1,e2) -> fromExpr e1 ++ fromExpr e2) exprExprList
+              (Let defs expr) -> defs ++ (concatMap fromDef defs) ++ fromExpr expr
+              (Var _) -> []
+              (Case expr patternExprList) -> fromExpr expr ++ concatMap (fromExpr . snd) patternExprList
+              (Data _ exprs) -> concatMap fromExpr exprs
+              (Markdown _) -> []
+
 
 dups :: [Statement] -> [String]
 dups stmts = checkTopLevelAndLets stmts $ \ctxt defs ->
