@@ -6,7 +6,7 @@ import Data.Char (isAlpha,isDigit)
 import Data.List (intercalate,sortBy,inits,foldl')
 import qualified Data.Map as Map
 import Data.Either (partitionEithers)
-import qualified Text.Pandoc as Pan
+--import qualified Text.Pandoc as Pan
 import Data.Maybe (maybeToList)
 
 import Ast
@@ -236,7 +236,7 @@ instance ToJS Expr where
 
     Markdown doc -> return $ "text('" ++ pad ++ md ++ pad ++ "')"
         where pad = "<div style=\"height:0;width:0;\">&nbsp;</div>"
-              md = formatMarkdown $ Pan.writeHtmlString Pan.def doc
+              md = "" --formatMarkdown $ Pan.writeHtmlString Pan.def doc
 
 jsApp e1 e2 =
     do f  <- toJS' func

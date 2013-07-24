@@ -47,7 +47,7 @@ instance Extract Expr where
       Var _ -> []
       Case e cases -> concatMap (f . snd) cases
       Data _ es -> concatMap f es
-      Markdown doc -> [ Pan.writeHtmlString Pan.def doc ]
+      Markdown doc -> [doc] --[ Pan.writeHtmlString Pan.def doc ]
       _ -> []
 
 linkExtract src txt =

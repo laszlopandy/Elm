@@ -8,7 +8,7 @@ import Data.Char (isSymbol, isDigit)
 import Data.List (foldl')
 import Text.Parsec hiding (newline,spaces)
 import Text.Parsec.Indent
-import qualified Text.Pandoc as Pan
+--import qualified Text.Pandoc as Pan
 
 import Parse.Library
 import Parse.Patterns
@@ -17,8 +17,6 @@ import Parse.Types
 
 import Guid
 import Types.Types (Type (VarT), Scheme (Forall))
-
-import System.IO.Unsafe
 
 
 --------  Basic Terms  --------
@@ -62,7 +60,7 @@ listTerm :: IParser Expr
 listTerm =
       (do { try $ string "[markdown|"
           ; md <- filter (/='\r') <$> manyTill anyChar (try $ string "|]")
-          ; return . Markdown $ Pan.readMarkdown Pan.def md })
+          ; return . Markdown $ "<markdown>" }) --Pan.readMarkdown Pan.def md })
   <|> (braces $ choice
        [ try $ do { lo <- expr; whitespace; string ".." ; whitespace
                   ; Range lo <$> expr }

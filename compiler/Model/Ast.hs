@@ -1,11 +1,11 @@
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE TemplateHaskell, DeriveDataTypeable #-}
 module Ast where
 
 import Located
 import Data.Char (isDigit, isSymbol)
 import Data.List (intercalate)
 import Types.Types
-import qualified Text.Pandoc as Pandoc
+--import qualified Text.Pandoc as Pandoc
 import Data.Data
 
 data Module = Module [String] Exports Imports [Statement]
@@ -45,7 +45,8 @@ data Expr = IntNum Int
           | Var String
           | Case CExpr [(Pattern,CExpr)]
           | Data String [CExpr]
-          | Markdown Pandoc.Pandoc
+          -- | Markdown Pandoc.Pandoc
+          | Markdown String
             deriving (Eq, Data, Typeable)
 
 data Def = FnDef String [String] CExpr
