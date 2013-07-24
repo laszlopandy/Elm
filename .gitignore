@@ -5,6 +5,7 @@ cabal-dev
 *.chi
 *.chs.h
 *.aes
+*.jsmod
 .DS_Store
 /Examples/elm-js/ChangeTitle/ChangeTitle.html
 /Examples/elm-js/ConsoleLog/Log.html
