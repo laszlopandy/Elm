@@ -18,7 +18,6 @@ import qualified Data.ByteString.Lazy.Char8 as BS
 import Ast
 import Initialize (buildFromSource)
 import CompileToJS
-import ExtractNoscript
 import Libraries as Libraries
 
 data JSStyle = Minified | Readable
