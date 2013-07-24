@@ -32,7 +32,7 @@ source-repository head
 Library
   exposed-modules:     Language.Elm,
                        Language.Elm.Quasi
-  Hs-Source-Dirs:      compiler, compiler/Gen, compiler/Model, compiler/Transform
+  Hs-Source-Dirs:      compiler, compiler/Gen, compiler/Model, compiler/Transform, compiler/GhcPlatform
   other-modules:       Ast,
                        Located,
                        CompileToJS,
@@ -85,7 +85,7 @@ Library
 
 Executable elm
   Main-is:             Compiler.hs
-  Hs-Source-Dirs:      compiler, compiler/Gen, compiler/Model, compiler/Transform
+  Hs-Source-Dirs:      compiler, compiler/Gen, compiler/Model, compiler/Transform, compiler/GhcPlatform
   extensions:          CPP
   cpp-options:         -DELM_COMPILEDATADIR="dist/data"
   other-modules:       Ast,
@@ -138,7 +138,7 @@ Executable elm
 
 Executable elm-doc
   Main-is:             Docs.hs
-  Hs-Source-Dirs:      compiler, compiler/Model, compiler/Transform
+  Hs-Source-Dirs:      compiler, compiler/Model, compiler/Transform, compiler/GhcPlatform
   other-modules:       Ast,
                        Located,
                        Parse.Library,

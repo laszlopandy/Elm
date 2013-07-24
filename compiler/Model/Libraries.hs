@@ -5,7 +5,7 @@ import Control.Applicative ((<$>),(<*>))
 import qualified Data.Map as Map
 import Data.List (inits)
 import Text.JSON
-import LoadLibraries as Libs
+import PlatformUtils (loadDocs)
 
 addPrelude :: Module -> Module
 addPrelude (Module name exs ims stmts) = Module name exs (customIms ++ ims) stmts
@@ -40,7 +40,7 @@ libraries =
 
 getLibs :: Result (Map.Map String (Map.Map String String))
 getLibs = do
-  obj <- decodeStrict Libs.docs :: Result (JSObject JSValue)
+  obj <- decodeStrict loadDocs :: Result (JSObject JSValue)
   modules <- valFromObj "modules" obj :: Result [JSObject JSValue]
   Map.fromList `fmap` mapM getValues modules
 

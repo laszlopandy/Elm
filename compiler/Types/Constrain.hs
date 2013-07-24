@@ -16,7 +16,7 @@ import Guid
 import Types.Types
 import qualified Types.Substitutions as Subs
 
-import System.IO.Unsafe
+import PlatformUtils (printWarning)
 
 beta = VarT `liftM` guid
 unionA = Map.unionWith (++)
@@ -87,7 +87,7 @@ constrain typeHints (Module _ _ imports stmts) = do
         msg = "Warning! Type-checker could not find variables:\n" ++ intercalate ", " escapees
     return $ case escapees of
                [] -> Right (Set.toList constraints ++ cs)
-               _  -> unsafePerformIO (putStrLn msg) `seq` Right (Set.toList constraints ++ cs)
+               _  -> printWarning msg `seq` Right (Set.toList constraints ++ cs)
                --_  -> Left ("Undefined variable(s): " ++ intercalate ", " escapees)
 
 type TVarMap = Map.Map String [X]
