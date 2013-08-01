@@ -3,12 +3,13 @@ module Main where
 import Build (buildFromSource)
 import CompileToJS (showErr, jsModule)
 import Haste (toJSString, fromJSString, JSString, mkCallback)
-import Haste.Prim (Ptr)
+import Haste.Prim (Ptr, toPtr)
 
 foreign import ccall consoleLog :: JSString -> IO ()
+foreign import ccall installCallback :: JSString -> (Ptr (JSString -> JSString)) -> IO ()
 
 main = do
-  consoleLog $ elmCompile (toJSString "import Mouse\nmain = asText <~ Mouse.position")
+  installCallback (toJSString "elmCompile") (toPtr elmCompile)
 
 elmCompile :: JSString -> JSString
 elmCompile src = 
@@ -23,12 +24,9 @@ compileToHtml source = either errToStr modToStr modul
       modToStr = elmToHtmlJs . jsModule 
       modul = buildFromSource True source
 
-elmToHtmlError err = baseHtml $
-  "<span style\"font-family: monospace;\">" ++
-  (concatMap (++"<br>") (lines err)) ++ 
-  "</span>"
+elmToHtmlError = elmToHtmlJs
 
-elmToHtmlJs jsSrc =
+elmToHtmlJs jsSrc = baseHtml $
   "<script type=\"text/javascript\" src=\"/elm-mini.js\"></script>" ++
   "<script type=\"text/javascript\">" ++ 
   --"window.onload = function() {" ++
