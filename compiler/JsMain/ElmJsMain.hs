@@ -1,6 +1,6 @@
 module Main where
 
-import Initialize (buildFromSource)
+import Build (buildFromSource)
 import CompileToJS (showErr, jsModule)
 import Haste (toJSString, fromJSString, JSString, mkCallback)
 import Haste.Prim (Ptr)

@@ -1,42 +1,14 @@
 module Initialize (buildFromSource, getSortedModuleNames) where
 
-import Control.Applicative ((<$>))
-import Control.Monad.Error
 import Data.List (lookup,nub)
 import qualified Data.Map as Map
 
-import Ast
-import Data.Either (lefts,rights)
 import Data.List (intercalate,partition)
-import Parse.Parser (parseProgram, parseDependencies)
-import Rename
+import Parse.Parser (parseDependencies)
 import qualified Libraries as Libs
-import Types.Types ((-:))
-import Types.Hints (hints)
-import Types.Unify (unify)
-import Types.Alias (dealias, mistakes)
-import Optimize
+import Build (buildFromSource)
 import System.Exit
 import System.FilePath
-
-checkMistakes :: Module -> Either String Module
-checkMistakes modul@(Module name ex im stmts) = 
-  case mistakes stmts of
-    m:ms -> Left (unlines (m:ms))
-    []   -> return modul
-
-checkTypes :: Module -> Either String Module
-checkTypes modul =
-  do subs <- unify hints modul
-     subs `seq` return (optimize (renameModule modul))
-
-check :: Module -> Either String Module
-check = checkMistakes >=> checkTypes
-
-buildFromSource :: Bool -> String -> Either String Module
-buildFromSource noPrelude src =
-    let add = if noPrelude then id else Libs.addPrelude in
-    (check . add) =<< (parseProgram src)
 
 getSortedModuleNames :: FilePath -> IO [String]
 getSortedModuleNames root =
