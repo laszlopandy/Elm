@@ -5,17 +5,20 @@ Learn about the Elm programming language at [elm-lang.org](http://elm-lang.org/)
 
 This branch contains a modified version of the [Elm compiler](http://github.com/evancz/Elm), which can be compiled by [Haste](http://github.com/valderman/haste-compiler) and run in the browser.
 
-### Proof of concept
+### Limitations
 
 This is only a proof of concept. Running the Elm compiler in JavaScript is much slower than native, and much less flexible.
 
-Features currently not supported:
- * Compiling multiple Elm modules together (all source code must be a single string)
- * Markdown syntax (ie. Elm's `[markdown| ... |]`). This is because [PanDoc for Haskell](http://hackage.haskell.org/package/pandoc) is a huge package that depend on file-system APIs.
+Current limitations:
+ * There is no way to compile multiple Elm modules together (all source code must be a single string)
+ * Elm's markdown syntax (`[markdown| ... |]`) is not converted, because [Pandoc](http://hackage.haskell.org/package/pandoc) is a monolithic package which depends heavily on file-system APIs
+ * It is not possible to compile Elm programs longer than a few hundred characters ([haste bug #77][bug])
+
+[bug]: https://github.com/valderman/haste-compiler/issues/77
 
 ### Try it out
 
-Online demo coming soon.
+Online demo coming soon, once [haste bug #77][bug] is fixed.
 
 ### Compiling
 
@@ -25,11 +28,6 @@ $ git clone https://github.com/valderman/haste-compiler.git
 $ cd haste-compiler
 $ cabal install
 $ haste-boot --force --local
-```
-
-You can check that the correct version of the compiler is available by looking for the --full-unicode option. To compile Elm we need this option.
-```
-$ hastec --help | grep full-unicode
 ```
 
 Once you have `hastec`, we need to install Elm's dependencies.
@@ -45,4 +43,4 @@ $ git checkout elm-haste
 $ sh haste-build.sh
 ```
 
-You can find the compiled JavaScript in: `compiler/JsMain/ElmJsMain.js`
+You can find the compiled JavaScript file at: `compiler/JsMain/ElmJsMain.js`
